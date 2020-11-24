@@ -1,0 +1,7 @@
+﻿  MainClusters.cpp
+  Cluster.cpp
+d:\лабы\myclusters\myclusters\myclusters\cluster.cpp(27): warning C4018: <: несоответствие типов со знаком и без знака
+d:\лабы\myclusters\myclusters\myclusters\cluster.cpp(83): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+d:\лабы\myclusters\myclusters\myclusters\cluster.cpp(94): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  Создание кода...
+  MyClusters.vcxproj -> D:\лабы\MyClusters\MyClusters\Debug\MyClusters.exe
