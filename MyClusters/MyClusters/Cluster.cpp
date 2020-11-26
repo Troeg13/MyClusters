@@ -1,4 +1,4 @@
-#include "Cluster.h"
+п»ї#include "Cluster.h"
 #include <iostream>
 #include <ctime>
 
@@ -9,19 +9,21 @@ Cluster::Cluster() : processor(1), count_tact(0), count_task(0), free_tact(0)
 
 Cluster::Cluster(int proc) : processor(proc), count_tact(0), count_task(0), free_tact(0)
 {
+	if ((proc > 64) || (proc < 1))
+		throw - 1;
 	time_task_completion.resize(0);
 }
 
 void Cluster::ClusterOn(TaskStream & task_stream)
 {
-	Turn<Task> turn(task_stream.GetCountTask());
+	Queue<Task> queue(task_stream.GetCountTask());
 	int tmp = 0;
 
 	Task current_task;
 	while (true)
 	{
 		count_tact++;
-		//возвращаем освободившиеся процессоры
+		//РІРѕР·РІСЂР°С‰Р°РµРј РѕСЃРІРѕР±РѕРґРёРІС€РёРµСЃСЏ РїСЂРѕС†РµСЃСЃРѕСЂС‹
 		if (time_task_completion.size() != 0)
 		{
 			for (int i = 0; i < time_task_completion.size(); i++)
@@ -35,17 +37,17 @@ void Cluster::ClusterOn(TaskStream & task_stream)
 				}
 			}
 		}
-		//проверяем очередь
-		if (!turn.IsEmpty())
+		//РїСЂРѕРІРµСЂСЏРµРј РѕС‡РµСЂРµРґСЊ
+		if (!queue.IsEmpty())
 		{
-			if (processor >= turn.ViewTheFirst().processor)
+			if (processor >= queue.ViewTheFirst().processor)
 			{
-				current_task = turn.Get();
+				current_task = queue.Get();
 				processor -= current_task.processor;
 				time_task_completion.push_back(std::make_pair(count_tact + current_task.tact, current_task.processor));
 			}
 		}
-		// поступила ли новая задача, требующая обработки?
+		// РїРѕСЃС‚СѓРїРёР»Р° Р»Рё РЅРѕРІР°СЏ Р·Р°РґР°С‡Р°, С‚СЂРµР±СѓСЋС‰Р°СЏ РѕР±СЂР°Р±РѕС‚РєРё?
 		if (count_tact == task_stream.ViewTheTact())
 		{
 			tmp = task_stream.GetTact();
@@ -56,9 +58,13 @@ void Cluster::ClusterOn(TaskStream & task_stream)
 				time_task_completion.push_back(std::make_pair(count_tact + current_task.tact, current_task.processor));
 			}
 			else
-				turn.Put(current_task);
+			{
+				if (time_task_completion.size() == 0)
+					throw "the current task cannot be completed";
+				queue.Put(current_task);
+			}	
 		}
-		//счётчик тактов простоя
+		//СЃС‡С‘С‚С‡РёРє С‚Р°РєС‚РѕРІ РїСЂРѕСЃС‚РѕСЏ
 		if (time_task_completion.size() == 0)
 			free_tact++;
 
@@ -69,14 +75,14 @@ void Cluster::ClusterOn(TaskStream & task_stream)
 
 void Cluster::Statistics()
 {
-	std::cout << " Количество процессоров в кластере: " << processor << std::endl;
-	std::cout << " Количество тактов, потраченное на выполнение задач: " << count_tact << std::endl;
-	std::cout << " Количество выполненых задач: " << count_task << std::endl;
-	std::cout << " Среднее количество тактов выполнения задания: " << (float(count_tact - free_tact)) / float(count_task) << std::endl;
-	std::cout << " Кличество тактов простоя кластера: " << free_tact << std::endl;
+	std::cout << " РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС†РµСЃСЃРѕСЂРѕРІ РІ РєР»Р°СЃС‚РµСЂРµ: " << processor << std::endl;
+	std::cout << " РљРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°РєС‚РѕРІ, РїРѕС‚СЂР°С‡РµРЅРЅРѕРµ РЅР° РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РґР°С‡: " << count_tact << std::endl;
+	std::cout << " РљРѕР»РёС‡РµСЃС‚РІРѕ РІС‹РїРѕР»РЅРµРЅС‹С… Р·Р°РґР°С‡: " << count_task << std::endl;
+	std::cout << " РЎСЂРµРґРЅРµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°РєС‚РѕРІ РІС‹РїРѕР»РЅРµРЅРёСЏ Р·Р°РґР°РЅРёСЏ: " << (float(count_tact - free_tact)) / float(count_task) << std::endl;
+	std::cout << " РљР»РёС‡РµСЃС‚РІРѕ С‚Р°РєС‚РѕРІ РїСЂРѕСЃС‚РѕСЏ РєР»Р°СЃС‚РµСЂР°: " << free_tact << std::endl;
 }
 
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 TaskStream::TaskStream(int count_task): count_task(count_task), tacts_new_task(count_task)
 {

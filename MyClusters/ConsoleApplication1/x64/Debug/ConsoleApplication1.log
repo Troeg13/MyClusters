@@ -1,0 +1,2 @@
+﻿  test_turn.cpp
+d:\лабы\myclusters\myclusters\consoleapplication1\test_turn.cpp(88): error C2857: оператор "#include", указанный с параметром командной строки /Ycpch.h, не найден в исходном файле
